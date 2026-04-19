@@ -262,6 +262,7 @@ Apart from these features, following features are supported.
 # 2. Hardware and Software setup and OTA
 This section describes how to set up and use ESP-Hosted-NG solution.
 Please check [Hardware and Software setup and OTA](docs/setup.md).
+For Jetson Orin Nano 8GB SPI host build and load steps in this fork, see [host/README.md](host/README.md).
 
 ---
 
@@ -840,6 +841,7 @@ This section explains the header that encapsulates the data packets exchanged ov
 ### 4.3 Porting Guide
 
 Refer [Porting Guide](docs/porting_guide.md) which explains how one can port the solution to other Linux host platforms.
+For the Jetson Orin Nano 8GB SPI host implementation in this fork, see [host/README.md](host/README.md) and [docs/jetson_orin_nano_spi.md](docs/jetson_orin_nano_spi.md).
 
 ---
 # 5. Throughput Performance
