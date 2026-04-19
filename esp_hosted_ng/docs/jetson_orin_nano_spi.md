@@ -28,9 +28,9 @@ The script defaults match the Jetson Orin Nano dev kit 40-pin header wiring used
 
 | Jetson header pin | Header label | Purpose | Linux GPIO number |
 | --- | --- | --- | --- |
-| 15 | `GPIO15` | ESP `Data Ready` | `350` |
-| 18 | `GPIO18` | ESP `Reset` / `EN` | `390` |
-| 22 | `GPIO22` | ESP `Handshake` | `391` |
+| 15 | `J12 pin 15` | ESP `Data Ready` | legacy global GPIO `433` |
+| 18 | `J12 pin 18` | ESP `Reset` / `EN` | legacy global GPIO `473` |
+| 22 | `J12 pin 22` | ESP `Handshake` | legacy global GPIO `471` |
 | 19 | `SPI1_MOSI` | SPI MOSI | bus `0`, chip-select path |
 | 21 | `SPI1_MISO` | SPI MISO | bus `0`, chip-select path |
 | 23 | `SPI1_SCLK` | SPI clock | bus `0`, chip-select path |
@@ -59,9 +59,9 @@ From `esp_hosted_ng/host/`:
 That builds `esp32_spi.ko` and loads it with these defaults:
 
 ```text
-resetpin=390
-spi_handshake_gpio=391
-spi_dataready_gpio=350
+resetpin=473
+spi_handshake_gpio=471
+spi_dataready_gpio=433
 spi_bus_num=0
 spi_chip_select=0
 spi_mode=2
@@ -72,9 +72,9 @@ Example with explicit arguments:
 
 ```bash
 ./jetson_orin_nano_init.sh \
-  resetpin=390 \
-  handshakepin=391 \
-  datareadypin=350 \
+  resetpin=473 \
+  handshakepin=471 \
+  datareadypin=433 \
   spibus=0 \
   spics=0 \
   spimode=2 \
@@ -98,6 +98,7 @@ It will also:
 
 ## Notes
 
+- `473`, `471`, and `433` are **legacy global GPIO numbers** used by the current host driver, not `gpiochip` offsets.
 - If `spi0.0` is bound to a non-`spidev` driver, the Jetson helper refuses to steal it.
 - The script handles the current boot only. A production setup should still disable the generic `spidev` binding for the target chip select in the device tree or overlay.
 - `spidev1.*` and other SPI controllers are not automatically the 40-pin header SPI bus. For the Orin Nano dev kit flow above, use the verified header path, usually `spi0.0`.

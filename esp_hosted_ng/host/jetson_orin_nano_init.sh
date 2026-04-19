@@ -6,9 +6,9 @@ set -euo pipefail
 
 IF_TYPE="spi"
 MODULE_NAME="esp32_spi.ko"
-RESETPIN=390
-HANDSHAKEPIN=391
-DATAREADYPIN=350
+RESETPIN=473
+HANDSHAKEPIN=471
+DATAREADYPIN=433
 SPI_BUS_NUM=0
 SPI_CHIP_SELECT=0
 SPI_MODE=2
@@ -31,9 +31,9 @@ usage()
 	echo "Usage: ./jetson_orin_nano_init.sh [arguments]"
 	echo
 	echo "Arguments:"
-	echo "  resetpin=390        Host GPIO connected to ESP EN/RST (Jetson header pin 18)"
-	echo "  handshakepin=391    Host GPIO connected to ESP handshake (Jetson header pin 22)"
-	echo "  datareadypin=350    Host GPIO connected to ESP data-ready (Jetson header pin 15)"
+	echo "  resetpin=473        Host GPIO connected to ESP EN/RST (Jetson header pin 18)"
+	echo "  handshakepin=471    Host GPIO connected to ESP handshake (Jetson header pin 22)"
+	echo "  datareadypin=433    Host GPIO connected to ESP data-ready (Jetson header pin 15)"
 	echo "  spibus=0            SPI controller bus number to use"
 	echo "  spics=0             SPI chip-select number to use"
 	echo "  spimode=2           SPI mode to use for ESP transport"
@@ -45,10 +45,11 @@ usage()
 	echo
 	echo "Notes:"
 	echo "  - Defaults match Jetson Orin Nano 8GB dev kit header wiring:"
-	echo "      pin 15 -> data-ready (GPIO15 -> 350)"
-	echo "      pin 18 -> reset      (GPIO18 -> 390)"
-	echo "      pin 22 -> handshake  (GPIO22 -> 391)"
+	echo "      pin 15 -> data-ready (legacy global GPIO 433)"
+	echo "      pin 18 -> reset      (legacy global GPIO 473)"
+	echo "      pin 22 -> handshake  (legacy global GPIO 471)"
 	echo "  - This helper currently supports the SPI transport only."
+	echo "  - These GPIO values are legacy global Linux GPIO numbers, not gpiochip offsets."
 	echo "  - If spi0.0 is bound to spidev, the script unbinds it for the current boot"
 	echo "    so esp32_spi.ko can reuse the existing SPI device."
 }

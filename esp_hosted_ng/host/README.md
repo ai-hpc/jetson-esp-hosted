@@ -20,9 +20,9 @@ This README assumes the Jetson 40-pin header is wired like this:
 | 21 | `SPI1_MISO` | MISO | `spi0.0` data path |
 | 23 | `SPI1_SCLK` | SCLK | `spi0.0` clock |
 | 24 | `SPI1_CS0` | CS0 | `spi0.0` chip select |
-| 15 | `GPIO15` | Data Ready | `350` |
-| 18 | `GPIO18` | Reset / EN | `390` |
-| 22 | `GPIO22` | Handshake | `391` |
+| 15 | `J12 pin 15` | Data Ready | legacy global GPIO `433` |
+| 18 | `J12 pin 18` | Reset / EN | legacy global GPIO `473` |
+| 22 | `J12 pin 22` | Handshake | legacy global GPIO `471` |
 
 ## 1. Prepare the Jetson
 
@@ -57,9 +57,9 @@ cd esp_hosted_ng/host
 Default module arguments used by the script:
 
 ```text
-resetpin=390
-spi_handshake_gpio=391
-spi_dataready_gpio=350
+resetpin=473
+spi_handshake_gpio=471
+spi_dataready_gpio=433
 spi_bus_num=0
 spi_chip_select=0
 spi_mode=2
@@ -70,9 +70,9 @@ Example with explicit overrides:
 
 ```bash
 ./jetson_orin_nano_init.sh \
-  resetpin=390 \
-  handshakepin=391 \
-  datareadypin=350 \
+  resetpin=473 \
+  handshakepin=471 \
+  datareadypin=433 \
   spibus=0 \
   spics=0 \
   spimode=2 \
@@ -95,12 +95,12 @@ Then load manually:
 sudo modprobe bluetooth
 sudo modprobe cfg80211
 sudo insmod ./esp32_spi.ko \
-  resetpin=390 \
+  resetpin=473 \
   clockspeed=10 \
   spi_bus_num=0 \
   spi_chip_select=0 \
-  spi_handshake_gpio=391 \
-  spi_dataready_gpio=350 \
+  spi_handshake_gpio=471 \
+  spi_dataready_gpio=433 \
   spi_mode=2
 ```
 
@@ -108,6 +108,7 @@ Important:
 
 - if `spi0.0` is still bound to `spidev`, unbind it first
 - if `spi0.0` is bound to some other driver, do not steal it blindly
+- `473`, `471`, and `433` are **legacy global GPIO numbers** used by this driver, not `gpiochip` offsets
 
 Manual `spidev` unbind for the current boot:
 
@@ -126,7 +127,7 @@ sudo dmesg -w
 Useful expected lines:
 
 ```text
-Config - SPI GPIOs: Handshake[391] Dataready[350]
+Config - SPI GPIOs: Handshake[471] Dataready[433]
 Config - SPI clock[10MHz] bus[0] cs[0] mode[2]
 ```
 
