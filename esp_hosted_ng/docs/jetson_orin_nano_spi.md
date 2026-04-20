@@ -32,12 +32,28 @@ The script defaults match the Jetson Orin Nano dev kit 40-pin header wiring used
 | --- | --- | --- | --- |
 | 15 | `J12 pin 15` | ESP `Data Ready` | legacy global GPIO `433` |
 | 22 | `J12 pin 22` | ESP `Handshake` | legacy global GPIO `471` |
-| 19 | `SPI1_MOSI` | SPI MOSI | bus `0`, chip-select path |
-| 21 | `SPI1_MISO` | SPI MISO | bus `0`, chip-select path |
-| 23 | `SPI1_SCLK` | SPI clock | bus `0`, chip-select path |
-| 24 | `SPI1_CS0` | SPI chip select 0 | `spidev0.0` / `spi0.0` |
+| 19 | `SPI0_MOSI` | SPI MOSI | bus `0`, chip-select path |
+| 21 | `SPI0_MISO` | SPI MISO | bus `0`, chip-select path |
+| 23 | `SPI0_SCK` | SPI clock | bus `0`, chip-select path |
+| 24 | `SPI0_CS0` | SPI chip select 0 | `spidev0.0` / `spi0.0` |
 
 Jetson pin `18` can be used as an optional host-driven ESP reset line via legacy global GPIO `473`, but this fork disables that path by default. On real bring-up, keeping Jetson `18` tied to ESP `EN/RST` can block ESP boot or interfere with USB flashing. Start with `resetpin=-1`, then opt in to `resetpin=473` only after proving your reset wiring is stable.
+
+Useful J12 cross-checks for the validated dev kit flow:
+
+- pin `15` = `GPIO12` = `gpio433`
+- pin `18` = `SPI1_CS0` = `gpio473`
+- pin `19` = `SPI0_MOSI` = `gpio483`
+- pin `21` = `SPI0_MISO` = `gpio482`
+- pin `22` = `SPI1_MISO` = `gpio471`
+- pin `23` = `SPI0_SCK` = `gpio481`
+- pin `24` = `SPI0_CS0` = `gpio484`
+
+This is the naming mismatch to remember on Jetson Orin Nano:
+
+- Jetson-IO preset name: `SPI1`
+- J12 labels on the data pins used here: `SPI0_*`
+- Linux device node on the validated flow: `spidev0.0`
 
 ## Prerequisites
 
@@ -58,6 +74,13 @@ From `esp_hosted_ng/host/`:
 ```bash
 ./jetson_orin_nano_init.sh
 ```
+
+On the validated Jetson Orin Nano plus ESP32-C6 bring-up for this fork, the reliable runtime sequence is:
+
+1. load the module with the default `resetpin=-1`
+2. keep `sudo dmesg -w` open
+3. manually press the ESP reset button
+4. wait for the ESP boot-up event, chipset detect, and `wlan0`
 
 That builds `esp32_spi.ko` and loads it with these defaults:
 
@@ -100,6 +123,7 @@ It will also:
 
 - reuse an existing SPI device such as `spi0.0` if it already exists in the device tree and is unbound
 - fall back to creating a new SPI device if none exists
+- clamp the runtime SPI clock reconfigure request from the ESP boot-up event to the host-selected `clockspeed=` limit
 
 ## Notes
 
@@ -107,3 +131,4 @@ It will also:
 - If `spi0.0` is bound to a non-`spidev` driver, the Jetson helper refuses to steal it.
 - The script handles the current boot only. A production setup should still disable the generic `spidev` binding for the target chip select in the device tree or overlay.
 - `spidev1.*` and other SPI controllers are not automatically the 40-pin header SPI bus. For the Orin Nano dev kit flow above, use the verified header path, usually `spi0.0`.
+- On the validated flow for this fork, `wlan0` appears only after the ESP is manually reset following module load.

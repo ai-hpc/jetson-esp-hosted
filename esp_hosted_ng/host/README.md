@@ -18,14 +18,26 @@ This README assumes the Jetson 40-pin header is wired like this:
 
 | Jetson header pin | Signal | ESP side role | Linux GPIO / SPI mapping |
 | --- | --- | --- | --- |
-| 19 | `SPI1_MOSI` | MOSI | `spi0.0` data path |
-| 21 | `SPI1_MISO` | MISO | `spi0.0` data path |
-| 23 | `SPI1_SCLK` | SCLK | `spi0.0` clock |
-| 24 | `SPI1_CS0` | CS0 | `spi0.0` chip select |
+| 19 | `SPI0_MOSI` | MOSI | `spi0.0` data path |
+| 21 | `SPI0_MISO` | MISO | `spi0.0` data path |
+| 23 | `SPI0_SCK` | SCLK | `spi0.0` clock |
+| 24 | `SPI0_CS0` | CS0 | `spi0.0` chip select |
 | 15 | `J12 pin 15` | Data Ready | legacy global GPIO `433` |
 | 22 | `J12 pin 22` | Handshake | legacy global GPIO `471` |
 
 Jetson-driven reset on header pin `18` is supported as an **optional** path via legacy global GPIO `473`, but it is **disabled by default** in this fork. On this board, tying Jetson pin `18` directly to ESP `EN/RST` can interfere with ESP boot and with USB flashing from a separate PC. Start with the reset wire disconnected or load the module with `resetpin=-1`.
+
+Useful J12 cross-checks for the validated dev kit flow:
+
+- pin `15` = `GPIO12` = `gpio433`
+- pin `18` = `SPI1_CS0` = `gpio473`
+- pin `19` = `SPI0_MOSI` = `gpio483`
+- pin `21` = `SPI0_MISO` = `gpio482`
+- pin `22` = `SPI1_MISO` = `gpio471`
+- pin `23` = `SPI0_SCK` = `gpio481`
+- pin `24` = `SPI0_CS0` = `gpio484`
+
+That is the important naming mismatch on this board: Jetson-IO exposes the preset as `SPI1`, but the live Linux device path used here is still `spi0.0`.
 
 ## 1. Prepare the Jetson
 
@@ -56,6 +68,13 @@ From this directory:
 cd esp_hosted_ng/host
 ./jetson_orin_nano_init.sh
 ```
+
+On the validated Jetson Orin Nano plus ESP32-C6 setup in this fork, the reliable sequence is:
+
+1. load the module with the default `resetpin=-1`
+2. keep `dmesg` open on the Jetson
+3. manually press the ESP `RST` button once
+4. wait for `wlan0` to appear
 
 Default module arguments used by the script:
 
@@ -135,6 +154,9 @@ Useful expected lines:
 ```text
 Config - SPI GPIOs: Handshake[471] Dataready[433]
 Config - SPI clock[10MHz] bus[0] cs[0] mode[2]
+Received ESP boot-up event
+Chipset=ESP32-C6 ID=0d detected over SPI
+ESP requested SPI CLK 26 MHz, clamping to host limit 10 MHz
 ```
 
 Once the transport comes up, confirm the network interface appears:
@@ -143,6 +165,11 @@ Once the transport comes up, confirm the network interface appears:
 ip link show
 nmcli device status
 ```
+
+Expected result on the validated Jetson flow in this fork:
+
+- `wlan0` appears after the manual ESP reset
+- `nmcli device status` shows `wlan0` as a Wi-Fi device
 
 ## 5. Notes
 
