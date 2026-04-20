@@ -37,7 +37,7 @@ usage()
 	echo "  spibus=0            SPI controller bus number to use"
 	echo "  spics=0             SPI chip-select number to use"
 	echo "  spimode=2           SPI mode to use for ESP transport"
-	echo "  clockspeed=10       Initial SPI clock in MHz"
+	echo "  clockspeed=10       Initial and maximum SPI clock in MHz"
 	echo "  ap_support          Enable AP support in the module build"
 	echo "  rawtp_host_to_esp   Enable raw throughput host->ESP test mode"
 	echo "  rawtp_esp_to_host   Enable raw throughput ESP->host test mode"

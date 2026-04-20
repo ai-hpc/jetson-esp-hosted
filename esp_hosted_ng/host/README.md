@@ -10,6 +10,8 @@ The Jetson-specific helper added in this fork is:
 
 It builds `esp32_spi.ko`, unbinds `spidev` from the selected SPI device for the current boot if needed, and loads the module with Jetson Orin Nano defaults.
 
+In this fork, `clockspeed=` is treated as both the initial SPI speed and the maximum speed the host will allow after the ESP boot-up event requests a faster clock.
+
 ## Jetson dev kit wiring assumed here
 
 This README assumes the Jetson 40-pin header is wired like this:
@@ -66,6 +68,8 @@ spi_chip_select=0
 spi_mode=2
 clockspeed=10
 ```
+
+So with the default Jetson helper, the host now stays at `10 MHz` instead of auto-jumping to `26 MHz`.
 
 Example with explicit overrides:
 

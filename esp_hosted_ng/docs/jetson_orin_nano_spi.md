@@ -22,6 +22,8 @@ esp_hosted_ng/host/jetson_orin_nano_init.sh
 
 It also makes the host SPI driver configurable at module load time instead of hardcoding Raspberry Pi defaults.
 
+In this fork, `clockspeed=` is also treated as the host-side ceiling for later SPI clock reconfiguration requests from the ESP boot-up event.
+
 ## Jetson header defaults
 
 The script defaults match the Jetson Orin Nano dev kit 40-pin header wiring used for the ESP32-C6 SPI path:
@@ -68,6 +70,8 @@ spi_chip_select=0
 spi_mode=2
 clockspeed=10
 ```
+
+With the default Jetson helper, the host therefore remains at `10 MHz` instead of auto-switching to `26 MHz` after boot.
 
 Example with explicit arguments:
 

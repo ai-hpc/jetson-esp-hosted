@@ -37,6 +37,7 @@ struct esp_spi_context {
 	struct workqueue_struct     *nw_cmd_reinit_workqueue;
 	struct work_struct          nw_cmd_reinit_work;
 	uint8_t                     spi_clk_mhz;
+	uint8_t                     spi_clk_cap_mhz;
 	uint8_t                     spi_mode;
 	uint16_t                    spi_bus_num;
 	uint16_t                    spi_chip_select;

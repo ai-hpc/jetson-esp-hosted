@@ -738,10 +738,21 @@ static void spi_exit(void)
 
 static void adjust_spi_clock(u8 spi_clk_mhz)
 {
-	if ((spi_clk_mhz) && (spi_clk_mhz != spi_context.spi_clk_mhz)) {
-		esp_info("ESP Reconfigure SPI CLK to %u MHz\n", spi_clk_mhz);
-		spi_context.spi_clk_mhz = spi_clk_mhz;
-		spi_context.esp_spi_dev->max_speed_hz = spi_clk_mhz * NUMBER_1M;
+	u8 target_spi_clk = spi_clk_mhz;
+
+	if (!target_spi_clk)
+		return;
+
+	if (spi_context.spi_clk_cap_mhz && target_spi_clk > spi_context.spi_clk_cap_mhz) {
+		esp_info("ESP requested SPI CLK %u MHz, clamping to host limit %u MHz\n",
+			 target_spi_clk, spi_context.spi_clk_cap_mhz);
+		target_spi_clk = spi_context.spi_clk_cap_mhz;
+	}
+
+	if (target_spi_clk != spi_context.spi_clk_mhz) {
+		esp_info("ESP Reconfigure SPI CLK to %u MHz\n", target_spi_clk);
+		spi_context.spi_clk_mhz = target_spi_clk;
+		spi_context.esp_spi_dev->max_speed_hz = target_spi_clk * NUMBER_1M;
 	}
 }
 
@@ -781,6 +792,7 @@ int esp_init_interface_layer(struct esp_adapter *adapter, u32 speed)
 		spi_context.spi_clk_mhz = speed;
 	else
 		spi_context.spi_clk_mhz = SPI_INITIAL_CLK_MHZ;
+	spi_context.spi_clk_cap_mhz = spi_context.spi_clk_mhz;
 
 	return spi_init();
 }
