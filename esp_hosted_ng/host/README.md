@@ -21,8 +21,9 @@ This README assumes the Jetson 40-pin header is wired like this:
 | 23 | `SPI1_SCLK` | SCLK | `spi0.0` clock |
 | 24 | `SPI1_CS0` | CS0 | `spi0.0` chip select |
 | 15 | `J12 pin 15` | Data Ready | legacy global GPIO `433` |
-| 18 | `J12 pin 18` | Reset / EN | legacy global GPIO `473` |
 | 22 | `J12 pin 22` | Handshake | legacy global GPIO `471` |
+
+Jetson-driven reset on header pin `18` is supported as an **optional** path via legacy global GPIO `473`, but it is **disabled by default** in this fork. On this board, tying Jetson pin `18` directly to ESP `EN/RST` can interfere with ESP boot and with USB flashing from a separate PC. Start with the reset wire disconnected or load the module with `resetpin=-1`.
 
 ## 1. Prepare the Jetson
 
@@ -57,7 +58,7 @@ cd esp_hosted_ng/host
 Default module arguments used by the script:
 
 ```text
-resetpin=473
+resetpin=-1
 spi_handshake_gpio=471
 spi_dataready_gpio=433
 spi_bus_num=0
@@ -70,7 +71,7 @@ Example with explicit overrides:
 
 ```bash
 ./jetson_orin_nano_init.sh \
-  resetpin=473 \
+  resetpin=-1 \
   handshakepin=471 \
   datareadypin=433 \
   spibus=0 \
@@ -95,7 +96,7 @@ Then load manually:
 sudo modprobe bluetooth
 sudo modprobe cfg80211
 sudo insmod ./esp32_spi.ko \
-  resetpin=473 \
+  resetpin=-1 \
   clockspeed=10 \
   spi_bus_num=0 \
   spi_chip_select=0 \
@@ -109,6 +110,7 @@ Important:
 - if `spi0.0` is still bound to `spidev`, unbind it first
 - if `spi0.0` is bound to some other driver, do not steal it blindly
 - `473`, `471`, and `433` are **legacy global GPIO numbers** used by this driver, not `gpiochip` offsets
+- if you intentionally wire Jetson pin `18` to ESP `EN/RST`, opt in with `resetpin=473` after you have proven the ESP boots cleanly with the reset wire attached
 
 Manual `spidev` unbind for the current boot:
 

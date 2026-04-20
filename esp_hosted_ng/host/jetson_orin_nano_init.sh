@@ -6,7 +6,7 @@ set -euo pipefail
 
 IF_TYPE="spi"
 MODULE_NAME="esp32_spi.ko"
-RESETPIN=473
+RESETPIN=-1
 HANDSHAKEPIN=471
 DATAREADYPIN=433
 SPI_BUS_NUM=0
@@ -31,7 +31,7 @@ usage()
 	echo "Usage: ./jetson_orin_nano_init.sh [arguments]"
 	echo
 	echo "Arguments:"
-	echo "  resetpin=473        Host GPIO connected to ESP EN/RST (Jetson header pin 18)"
+	echo "  resetpin=-1         Disable host-driven ESP reset by default"
 	echo "  handshakepin=471    Host GPIO connected to ESP handshake (Jetson header pin 22)"
 	echo "  datareadypin=433    Host GPIO connected to ESP data-ready (Jetson header pin 15)"
 	echo "  spibus=0            SPI controller bus number to use"
@@ -46,8 +46,10 @@ usage()
 	echo "Notes:"
 	echo "  - Defaults match Jetson Orin Nano 8GB dev kit header wiring:"
 	echo "      pin 15 -> data-ready (legacy global GPIO 433)"
-	echo "      pin 18 -> reset      (legacy global GPIO 473)"
 	echo "      pin 22 -> handshake  (legacy global GPIO 471)"
+	echo "  - Host-driven reset is disabled by default because driving ESP EN/RST from"
+	echo "    Jetson pin 18 can hold the ESP in reset or interfere with USB flashing."
+	echo "    If your wiring is known-good, opt in with resetpin=473."
 	echo "  - This helper currently supports the SPI transport only."
 	echo "  - These GPIO values are legacy global Linux GPIO numbers, not gpiochip offsets."
 	echo "  - If spi0.0 is bound to spidev, the script unbinds it for the current boot"

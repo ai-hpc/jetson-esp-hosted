@@ -29,12 +29,13 @@ The script defaults match the Jetson Orin Nano dev kit 40-pin header wiring used
 | Jetson header pin | Header label | Purpose | Linux GPIO number |
 | --- | --- | --- | --- |
 | 15 | `J12 pin 15` | ESP `Data Ready` | legacy global GPIO `433` |
-| 18 | `J12 pin 18` | ESP `Reset` / `EN` | legacy global GPIO `473` |
 | 22 | `J12 pin 22` | ESP `Handshake` | legacy global GPIO `471` |
 | 19 | `SPI1_MOSI` | SPI MOSI | bus `0`, chip-select path |
 | 21 | `SPI1_MISO` | SPI MISO | bus `0`, chip-select path |
 | 23 | `SPI1_SCLK` | SPI clock | bus `0`, chip-select path |
 | 24 | `SPI1_CS0` | SPI chip select 0 | `spidev0.0` / `spi0.0` |
+
+Jetson pin `18` can be used as an optional host-driven ESP reset line via legacy global GPIO `473`, but this fork disables that path by default. On real bring-up, keeping Jetson `18` tied to ESP `EN/RST` can block ESP boot or interfere with USB flashing. Start with `resetpin=-1`, then opt in to `resetpin=473` only after proving your reset wiring is stable.
 
 ## Prerequisites
 
@@ -59,7 +60,7 @@ From `esp_hosted_ng/host/`:
 That builds `esp32_spi.ko` and loads it with these defaults:
 
 ```text
-resetpin=473
+resetpin=-1
 spi_handshake_gpio=471
 spi_dataready_gpio=433
 spi_bus_num=0
@@ -72,7 +73,7 @@ Example with explicit arguments:
 
 ```bash
 ./jetson_orin_nano_init.sh \
-  resetpin=473 \
+  resetpin=-1 \
   handshakepin=471 \
   datareadypin=433 \
   spibus=0 \
